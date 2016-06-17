@@ -12,15 +12,15 @@ import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
-import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.IModifier;
 
 import java.io.IOException;
@@ -33,6 +33,10 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
     private BitmapTextureAtlas cowboyTextureAtlas;
     private ITiledTextureRegion cowboyTiledTextureRegion;
     private AnimatedSprite cowboyAnimatedSprite;
+
+    private BitmapTextureAtlas backgroundTextureAtlas;
+    private ITextureRegion backgroundTextureRegion;
+    private Sprite backgroundSprite;
 
     boolean canGo = false;
 
@@ -50,7 +54,12 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
     @Override
     public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) throws IOException {
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-        cowboyTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(), 640, 320, TextureOptions.BILINEAR);
+
+        backgroundTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(), 1024, 1024, TextureOptions.DEFAULT);
+        backgroundTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(backgroundTextureAtlas, this, "parallax_background_layer_back.png", 0, 0);
+        backgroundTextureAtlas.load();
+
+        cowboyTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(), 640, 320, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
         cowboyTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(cowboyTextureAtlas, this, "walkman640x320.png", 0, 0, 8, 1);
         cowboyTextureAtlas.load();
 
@@ -59,11 +68,17 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 
     @Override
     public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) throws IOException {
+
+        final float positionX = CAMERA_WIDTH * 0.5f;
+        final float positionY = CAMERA_HEIGHT * 0.5f;
+
+
         scene = new Scene();
         scene.setOnSceneTouchListener(this);
 
-        cowboyAnimatedSprite = new AnimatedSprite(120, 120, cowboyTiledTextureRegion, mEngine.getVertexBufferObjectManager()){
+        backgroundSprite = new Sprite(positionX, positionY, backgroundTextureRegion, mEngine.getVertexBufferObjectManager());
 
+        cowboyAnimatedSprite = new AnimatedSprite(120, 120, cowboyTiledTextureRegion, mEngine.getVertexBufferObjectManager()){
 
             @Override
             protected void onManagedUpdate(float pSecondsElapsed) {
@@ -73,8 +88,9 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
         };
         cowboyAnimatedSprite.animate(50);
 
+        scene.attachChild(backgroundSprite);
         scene.attachChild(cowboyAnimatedSprite);
-        scene.setBackground(new Background(Color.CYAN));
+//        scene.setBackground(new Background(Color.CYAN));
         scene.registerUpdateHandler(new IUpdateHandler() {
             @Override
             public void reset() {}
@@ -91,6 +107,11 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 ////                    cowboyAnimatedSprite.setPosition(cowboyAnimatedSprite.getX(), cowboyAnimatedSprite.getY()-8);
 //                }
 
+                final float innitialYPosition = 120;
+//                if (pSecondsElapsed < 0.2){
+//                    innitialYPosition = cowboyAnimatedSprite.getY();
+//                }
+
                 if (canGo){
                     final float duration = 1;
 //                    final float duration = 3;
@@ -104,7 +125,7 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 //                    MoveYModifier mod1=new MoveYModifier(constanttime,fromY,toY);
 //                    sprite.registerEntityModifier(mod1);
 
-                    final MoveModifier downMoveModifier = new MoveModifier(0.4f, fromX, toY, toX, fromY, new IEntityModifier.IEntityModifierListener() {
+                    final MoveModifier downMoveModifier = new MoveModifier(0.4f, fromX, toY, toX, innitialYPosition, new IEntityModifier.IEntityModifierListener() {
                         @Override
                         public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
                             cowboyAnimatedSprite.stopAnimation(0);
