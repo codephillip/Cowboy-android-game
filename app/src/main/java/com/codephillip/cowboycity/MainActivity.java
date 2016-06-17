@@ -30,9 +30,9 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
     private static final int CAMERA_WIDTH = 800;
     private static final int CAMERA_HEIGHT = 480;
 
-    private BitmapTextureAtlas characterTextureAtlas;
-    private ITiledTextureRegion characterTiledTextureRegion;
-    private AnimatedSprite characterAnimatedSprite;
+    private BitmapTextureAtlas cowboyTextureAtlas;
+    private ITiledTextureRegion cowboyTiledTextureRegion;
+    private AnimatedSprite cowboyAnimatedSprite;
 
     boolean canGo = false;
 
@@ -50,9 +50,9 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
     @Override
     public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) throws IOException {
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-        characterTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(), 640, 320, TextureOptions.BILINEAR);
-        characterTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(characterTextureAtlas, this, "walkman640x320.png", 0, 0, 8, 1);
-        characterTextureAtlas.load();
+        cowboyTextureAtlas = new BitmapTextureAtlas(mEngine.getTextureManager(), 640, 320, TextureOptions.BILINEAR);
+        cowboyTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(cowboyTextureAtlas, this, "walkman640x320.png", 0, 0, 8, 1);
+        cowboyTextureAtlas.load();
 
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
@@ -62,7 +62,7 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
         scene = new Scene();
         scene.setOnSceneTouchListener(this);
 
-        characterAnimatedSprite = new AnimatedSprite(120, 120, characterTiledTextureRegion, mEngine.getVertexBufferObjectManager()){
+        cowboyAnimatedSprite = new AnimatedSprite(120, 120, cowboyTiledTextureRegion, mEngine.getVertexBufferObjectManager()){
 
 
             @Override
@@ -71,9 +71,9 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 //                Log.d(TAG, "onManagedUpdate: counting#");
             }
         };
-        characterAnimatedSprite.animate(50);
+        cowboyAnimatedSprite.animate(50);
 
-        scene.attachChild(characterAnimatedSprite);
+        scene.attachChild(cowboyAnimatedSprite);
         scene.setBackground(new Background(Color.CYAN));
         scene.registerUpdateHandler(new IUpdateHandler() {
             @Override
@@ -83,21 +83,21 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
                 // TODO Auto-generated method stub
                 //moves character 2 steps forward along x-axis
 //                if (canGo){
-//                    characterAnimatedSprite.setPosition(characterAnimatedSprite.getX() + 2, characterAnimatedSprite.getY());
+//                    cowboyAnimatedSprite.setPosition(cowboyAnimatedSprite.getX() + 2, cowboyAnimatedSprite.getY());
 //                }
                 //moves character 8 steps upward along y-axis and back
 //                if (canGo){
-//                    characterAnimatedSprite.setPosition(characterAnimatedSprite.getX(), characterAnimatedSprite.getY()+30);
-////                    characterAnimatedSprite.setPosition(characterAnimatedSprite.getX(), characterAnimatedSprite.getY()-8);
+//                    cowboyAnimatedSprite.setPosition(cowboyAnimatedSprite.getX(), cowboyAnimatedSprite.getY()+30);
+////                    cowboyAnimatedSprite.setPosition(cowboyAnimatedSprite.getX(), cowboyAnimatedSprite.getY()-8);
 //                }
 
                 if (canGo){
                     final float duration = 1;
 //                    final float duration = 3;
-                    final float fromX = characterAnimatedSprite.getX();
-                    final float toX = characterAnimatedSprite.getX();
-                    final float fromY = characterAnimatedSprite.getY();
-                    final float toY = characterAnimatedSprite.getY() + 80;
+                    final float fromX = cowboyAnimatedSprite.getX();
+                    final float toX = cowboyAnimatedSprite.getX();
+                    final float fromY = cowboyAnimatedSprite.getY();
+                    final float toY = cowboyAnimatedSprite.getY() + 80;
 
 
                     //you can move in on axis using MoveYModifier or MoveXModifier
@@ -107,28 +107,28 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
                     final MoveModifier downMoveModifier = new MoveModifier(0.4f, fromX, toY, toX, fromY, new IEntityModifier.IEntityModifierListener() {
                         @Override
                         public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-                            characterAnimatedSprite.stopAnimation(0);
+                            cowboyAnimatedSprite.stopAnimation(0);
                         }
 
                         @Override
                         public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                            characterAnimatedSprite.animate(50);
+                            cowboyAnimatedSprite.animate(50);
                         }
                     });
 
                     final MoveModifier upMoveModifier = new MoveModifier(0.2f, fromX, fromY, toX, toY, new IEntityModifier.IEntityModifierListener() {
                         @Override
                         public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-                            characterAnimatedSprite.stopAnimation(0);
+                            cowboyAnimatedSprite.stopAnimation(0);
                         }
 
                         @Override
                         public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                            characterAnimatedSprite.registerEntityModifier(downMoveModifier);
+                            cowboyAnimatedSprite.registerEntityModifier(downMoveModifier);
                         }
                     });
 
-                    characterAnimatedSprite.registerEntityModifier(upMoveModifier);
+                    cowboyAnimatedSprite.registerEntityModifier(upMoveModifier);
                 }
             }
         });
