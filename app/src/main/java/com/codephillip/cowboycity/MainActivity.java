@@ -3,6 +3,10 @@ package com.codephillip.cowboycity;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.options.EngineOptions;
@@ -46,16 +50,26 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
     private AnimatedSprite catAnimatedSprite;
 
     boolean canGo = false;
+    private boolean hasPlayed = false;
+    private boolean hasPlayedJumpSound = false;
 
     public static final String TAG = "Cowboy#";
 
 
     private Scene scene;
+    private Sound biteSound;
+    private Sound screamSound;
+    private Sound jumpSound;
+    private Music gameSound;
+    private Music footstepSound;
 
     @Override
     public EngineOptions onCreateEngineOptions() {
         Camera camera = new Camera(0,0, CAMERA_WIDTH, CAMERA_HEIGHT);
-        return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), camera);
+        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), camera);
+        engineOptions.getAudioOptions().setNeedsSound(true);
+        engineOptions.getAudioOptions().setNeedsMusic(true);
+        return engineOptions;
     }
 
     @Override
@@ -74,6 +88,24 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
         catTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(catTextureAtlas,this, "runningcat_reverse384.png", 0, 0, 2, 4);
         catTextureAtlas.load();
 
+        try {
+            biteSound = SoundFactory.createSoundFromAsset(getEngine().getSoundManager(), this, "mfx/lion.ogg");
+            screamSound = SoundFactory.createSoundFromAsset(getEngine().getSoundManager(), this, "mfx/scream1.ogg");
+            jumpSound = SoundFactory.createSoundFromAsset(getEngine().getSoundManager(), this, "mfx/jump3.ogg");
+            gameSound = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this, "mfx/gamemenu.mp3");
+//            gameSound = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this, "mfx/gameSound.mp3");
+            footstepSound = MusicFactory.createMusicFromAsset(getEngine().getMusicManager(), this, "mfx/footsteps.ogg");
+//            footstepSound = SoundFactory.createSoundFromAsset(getEngine().getSoundManager(), this, "mfx/footsteps.ogg");
+            gameSound.setVolume(20.0f);
+            biteSound.setVolume(1.0f);
+            footstepSound.setVolume(0.5f);
+            footstepSound.setLooping(true);
+            gameSound.setLooping(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
 
@@ -84,6 +116,8 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
          * */
         scene = new Scene();
         scene.setOnSceneTouchListener(this);
+        gameSound.play();
+        footstepSound.play();
         pOnCreateSceneCallback.onCreateSceneFinished(scene);
     }
 
@@ -100,6 +134,7 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
             @Override
             protected void onManagedUpdate(float pSecondsElapsed) {
                 super.onManagedUpdate(pSecondsElapsed);
+//                footstepSound.play();
 //                Log.d(TAG, "onManagedUpdate: counting#");
             }
         };
@@ -114,8 +149,17 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
                 final float currentY = this.getY();
 
 				/* If the two rectangle's are colliding, set this rectangle's color to GREEN */
-                if(this.collidesWith(cowboyAnimatedSprite)){
+                Log.d(TAG, "onManagedUpdate: ###"+this.getX()+"and Y "+ this.getY());
+                if(this.collidesWith(cowboyAnimatedSprite) && this.getX() >= 140){
                     Log.d(TAG, "onManagedUpdate: COLLISTION");
+                    if (!hasPlayed){
+                        biteSound.play();
+                        screamSound.play();
+                        hasPlayed = true;
+                    }
+                }
+                else {
+                    hasPlayed = false;
                 }
 
                 super.onManagedUpdate(pSecondsElapsed);
@@ -123,7 +167,7 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
             }
         };
 
-        final MoveXModifier moveXModifier = new MoveXModifier(1.8f, 900, -150);
+        final MoveXModifier moveXModifier = new MoveXModifier(1.7f, 900, -170);
         catAnimatedSprite.registerEntityModifier(new LoopEntityModifier(moveXModifier));
 
         catAnimatedSprite.animate(100);
@@ -193,16 +237,27 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 //                    });
 
                     //-140 means jump upward, positive move downward
-                    JumpModifier jumpModifier = new JumpModifier(0.8f, fromX, toX, fromY, toY, -140, new IEntityModifier.IEntityModifierListener() {
+                    JumpModifier jumpModifier = new JumpModifier(0.6f, fromX, toX, fromY, toY, -140, new IEntityModifier.IEntityModifierListener() {
                         @Override
                         public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
                             cowboyAnimatedSprite.stopAnimation(0);
+                            Log.d(TAG, "onModifierStarted: JUMP");
+                            if (hasPlayedJumpSound){
+                                footstepSound.pause();
+                                jumpSound.stop();
+                                jumpSound.play();
+                                hasPlayedJumpSound = false;
+                            }
+                            else {
+                                hasPlayedJumpSound = true;
+                            }
                         }
 
                         @Override
                         public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
                             cowboyAnimatedSprite.animate(50);
                             cowboyAnimatedSprite.setY(innitialYPosition);
+                            footstepSound.play();
                         }
                     });
 
@@ -211,7 +266,6 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
                 }
             }
         });
-
 
         pOnPopulateSceneCallback.onPopulateSceneFinished();
     }
