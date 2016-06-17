@@ -125,19 +125,21 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 //                    MoveYModifier mod1=new MoveYModifier(constanttime,fromY,toY);
 //                    sprite.registerEntityModifier(mod1);
 
-                    final MoveModifier downMoveModifier = new MoveModifier(0.4f, fromX, toY, toX, innitialYPosition, new IEntityModifier.IEntityModifierListener() {
+                    final MoveModifier downMoveModifier = new MoveModifier(0.4f, fromX, fromY, toX, innitialYPosition, new IEntityModifier.IEntityModifierListener() {
                         @Override
                         public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-                            cowboyAnimatedSprite.stopAnimation(0);
+                            cowboyAnimatedSprite.setCurrentTileIndex(4);
                         }
 
                         @Override
                         public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+//                            cowboyAnimatedSprite.stopAnimation(2);
+//                            cowboyAnimatedSprite.setCurrentTileIndex(2);
                             cowboyAnimatedSprite.animate(50);
                         }
                     });
 
-                    final MoveModifier upMoveModifier = new MoveModifier(0.2f, fromX, fromY, toX, toY, new IEntityModifier.IEntityModifierListener() {
+                    final MoveModifier upMoveModifier = new MoveModifier(0.3f, fromX, fromY, toX, toY, new IEntityModifier.IEntityModifierListener() {
                         @Override
                         public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
                             cowboyAnimatedSprite.stopAnimation(0);
