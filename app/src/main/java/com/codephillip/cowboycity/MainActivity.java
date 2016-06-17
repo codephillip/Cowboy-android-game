@@ -150,11 +150,11 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 
 				/* If the two rectangle's are colliding, set this rectangle's color to GREEN */
                 Log.d(TAG, "onManagedUpdate: ###"+this.getX()+"and Y "+ this.getY());
-                if(this.collidesWith(cowboyAnimatedSprite) && this.getX() >= 140){
+                if(this.collidesWith(cowboyAnimatedSprite) && this.getX() >= 180){
                     Log.d(TAG, "onManagedUpdate: COLLISTION");
                     if (!hasPlayed){
                         biteSound.play();
-                        screamSound.play();
+//                        screamSound.play();
                         hasPlayed = true;
                     }
                 }
@@ -176,6 +176,12 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
         scene.attachChild(cowboyAnimatedSprite);
         scene.attachChild(catAnimatedSprite);
 //        scene.setBackground(new Background(Color.CYAN));
+
+        final float fromX = cowboyAnimatedSprite.getX();
+        final float toX = cowboyAnimatedSprite.getX();
+        final float fromY = cowboyAnimatedSprite.getY();
+        final float toY = cowboyAnimatedSprite.getY();
+
         scene.registerUpdateHandler(new IUpdateHandler() {
             @Override
             public void reset() {}
@@ -199,10 +205,10 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
                 if (canGo){
                     final float duration = 1;
 //                    final float duration = 3;
-                    final float fromX = cowboyAnimatedSprite.getX();
-                    final float toX = cowboyAnimatedSprite.getX();
-                    final float fromY = cowboyAnimatedSprite.getY();
-                    final float toY = cowboyAnimatedSprite.getY();
+//                    final float fromX = cowboyAnimatedSprite.getX();
+//                    final float toX = cowboyAnimatedSprite.getX();
+//                    final float fromY = cowboyAnimatedSprite.getY();
+//                    final float toY = cowboyAnimatedSprite.getY();
 //                    final float toY = cowboyAnimatedSprite.getY() + 140;
 
 
