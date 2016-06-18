@@ -19,6 +19,7 @@ import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.MoveXModifier;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
+import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
@@ -80,78 +81,79 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 
     @Override
     public EngineOptions onCreateEngineOptions() {
-        camera = new Camera(0,0, CAMERA_WIDTH, CAMERA_HEIGHT){
-
-        //PARALLAX CODE
-          /* Boolean value which will determine whether
-             * to increase or decrease x coordinate */
-        boolean incrementX = true;
-
-            /* On camera update... */
-        @Override
-        public void onUpdate(float pSecondsElapsed) {
-
-				/* Obtain the current camera X coordinate */
-            final float currentCenterX = this.getCenterX();
-
-				/* Value which will be used to offset the camera */
-            float offsetCenterX = 0;
-
-				/* If incrementX is true... */
-//                if(incrementX){
+        camera = new Camera(0,0, CAMERA_WIDTH, CAMERA_HEIGHT);
+//        {
+//
+//        //PARALLAX CODE
+//          /* Boolean value which will determine whether
+//             * to increase or decrease x coordinate */
+//        boolean incrementX = true;
+//
+//            /* On camera update... */
+//        @Override
+//        public void onUpdate(float pSecondsElapsed) {
+//
+//				/* Obtain the current camera X coordinate */
+//            final float currentCenterX = this.getCenterX();
+//
+//				/* Value which will be used to offset the camera */
+//            float offsetCenterX = 0;
+//
+//				/* If incrementX is true... */
+////                if(incrementX){
+////
+////					/* offset the camera's x coordinate according to time passed */
+////                    offsetCenterX = currentCenterX + pSecondsElapsed * SCROLL_FACTOR;
+////
+////					/* If the new offset coordinate is greater than the max X limit */
+////                    if(offsetCenterX >= CAMERA_MAX_CENTER_X){
+////
+////						/* Set to decrement the camera's X coordinate next */
+////                        incrementX = false;
+////                    }
+////                } else {
+////					/* If increment is equal to false, decrement X coordinate */
+////                    offsetCenterX = currentCenterX - pSecondsElapsed * SCROLL_FACTOR;
+////
+////					/* If the new offset coordinate is less than the min X limit */
+////                    if(offsetCenterX <= CAMERA_MIN_CENTER_X){
+////
+////						/* Set to increment the camera's X coordinate next */
+////                        incrementX = true;
+////                    }
+////                }
+//
+//
+//                /* If incrementX is true... */
+//            if(false){
 //
 //					/* offset the camera's x coordinate according to time passed */
-//                    offsetCenterX = currentCenterX + pSecondsElapsed * SCROLL_FACTOR;
+//                offsetCenterX = currentCenterX + pSecondsElapsed * SCROLL_FACTOR;
 //
 //					/* If the new offset coordinate is greater than the max X limit */
-//                    if(offsetCenterX >= CAMERA_MAX_CENTER_X){
+////                    if(offsetCenterX >= CAMERA_MAX_CENTER_X){
+////
+////						/* Set to decrement the camera's X coordinate next */
+////                        incrementX = false;
+////                    }
+//            } else {
+////					/* If increment is equal to false, decrement X coordinate */
+//                offsetCenterX = currentCenterX - pSecondsElapsed * SCROLL_FACTOR;
+////
+////					/* If the new offset coordinate is less than the min X limit */
+////                    if(offsetCenterX <= CAMERA_MIN_CENTER_X){
+////
+////						/* Set to increment the camera's X coordinate next */
+////                        incrementX = true;
+////                    }
+//            }
 //
-//						/* Set to decrement the camera's X coordinate next */
-//                        incrementX = false;
-//                    }
-//                } else {
-//					/* If increment is equal to false, decrement X coordinate */
-//                    offsetCenterX = currentCenterX - pSecondsElapsed * SCROLL_FACTOR;
+//				/* Apply the offset position to the camera */
+//            this.setCenter(offsetCenterX, this.getCenterY());
 //
-//					/* If the new offset coordinate is less than the min X limit */
-//                    if(offsetCenterX <= CAMERA_MIN_CENTER_X){
-//
-//						/* Set to increment the camera's X coordinate next */
-//                        incrementX = true;
-//                    }
-//                }
-
-
-                /* If incrementX is true... */
-            if(false){
-
-					/* offset the camera's x coordinate according to time passed */
-                offsetCenterX = currentCenterX + pSecondsElapsed * SCROLL_FACTOR;
-
-					/* If the new offset coordinate is greater than the max X limit */
-//                    if(offsetCenterX >= CAMERA_MAX_CENTER_X){
-//
-//						/* Set to decrement the camera's X coordinate next */
-//                        incrementX = false;
-//                    }
-            } else {
-//					/* If increment is equal to false, decrement X coordinate */
-                offsetCenterX = currentCenterX - pSecondsElapsed * SCROLL_FACTOR;
-//
-//					/* If the new offset coordinate is less than the min X limit */
-//                    if(offsetCenterX <= CAMERA_MIN_CENTER_X){
-//
-//						/* Set to increment the camera's X coordinate next */
-//                        incrementX = true;
-//                    }
-            }
-
-				/* Apply the offset position to the camera */
-            this.setCenter(offsetCenterX, this.getCenterY());
-
-            super.onUpdate(pSecondsElapsed);
-        }
-    };
+//            super.onUpdate(pSecondsElapsed);
+//        }
+//    };
 
 
         EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), camera);
@@ -262,44 +264,49 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 
         /* Create the ParallaxBackground, setting the color values to represent
 		 * a blue sky */
-        ParallaxBackground background = new ParallaxBackground(0.3f, 1f, 0.9f) {
 
-            /* We'll use these values to calculate the
-             * parallax value of the background */
-            float cameraPreviousX = 0;
-            float parallaxValueOffset = 0;
+        final float autoParallaxSpeed = 3;
+        AutoParallaxBackground background = new AutoParallaxBackground(0.3f, 1f, 0.9f, -3);
 
-            /* onUpdates to the background, we need to calculate new
-             * parallax values in order to apply movement to the background
-             * objects (the hills in this case) */
-            @Override
-            public void onUpdate(float pSecondsElapsed) {
-
-				/* Obtain the camera's current center X value */
-                final float cameraCurrentX = camera.getCenterX();
-
-				/* If the camera's position has changed since last
-				 * update... */
-                if (cameraPreviousX != cameraCurrentX) {
-
-					/* Calculate the new parallax value offset by
-					 * subtracting the previous update's camera x coordinate
-					 * from the current update's camera x coordinate */
-                    parallaxValueOffset +=  cameraCurrentX - cameraPreviousX;
-
-					/* Apply the parallax value offset to the background, which
-					 * will in-turn offset the positions of entities attached
-					 * to the background */
-                    this.setParallaxValue(parallaxValueOffset);
-
-					/* Update the previous camera X since we're finished with this
-					 * update */
-                    cameraPreviousX = cameraCurrentX;
-                }
-
-                super.onUpdate(pSecondsElapsed);
-            }
-        };
+//        {
+////        ParallaxBackground background = new ParallaxBackground(0.3f, 1f, 0.9f) {
+//
+//            /* We'll use these values to calculate the
+//             * parallax value of the background */
+//            float cameraPreviousX = 0;
+//            float parallaxValueOffset = 0;
+//
+//            /* onUpdates to the background, we need to calculate new
+//             * parallax values in order to apply movement to the background
+//             * objects (the hills in this case) */
+//            @Override
+//            public void onUpdate(float pSecondsElapsed) {
+//
+//				/* Obtain the camera's current center X value */
+//                final float cameraCurrentX = camera.getCenterX();
+//
+//				/* If the camera's position has changed since last
+//				 * update... */
+//                if (cameraPreviousX != cameraCurrentX) {
+//
+//					/* Calculate the new parallax value offset by
+//					 * subtracting the previous update's camera x coordinate
+//					 * from the current update's camera x coordinate */
+//                    parallaxValueOffset +=  cameraCurrentX - cameraPreviousX;
+//
+//					/* Apply the parallax value offset to the background, which
+//					 * will in-turn offset the positions of entities attached
+//					 * to the background */
+//                    this.setParallaxValue(parallaxValueOffset);
+//
+//					/* Update the previous camera X since we're finished with this
+//					 * update */
+//                    cameraPreviousX = cameraCurrentX;
+//                }
+//
+//                super.onUpdate(pSecondsElapsed);
+//            }
+//        };
 
 
         background.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0, backgroundSprite));
@@ -370,7 +377,7 @@ public class MainActivity extends BaseGameActivity implements IOnSceneTouchListe
 
 //        scene.attachChild(backgroundSprite);
         scene.attachChild(cowboyAnimatedSprite);
-        frontBackgroundSprite.attachChild(catAnimatedSprite);
+        scene.attachChild(catAnimatedSprite);
 //        scene.setBackground(new Background(Color.CYAN));
 
         final float fromX = cowboyAnimatedSprite.getX();
